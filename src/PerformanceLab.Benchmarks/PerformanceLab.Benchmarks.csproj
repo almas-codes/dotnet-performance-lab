@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\PerformanceLab.Abstractions\PerformanceLab.Abstractions.csproj" />
+    <ProjectReference Include="..\PerformanceLab.Core\PerformanceLab.Core.csproj" />
+    <ProjectReference Include="..\PerformanceLab.Data.EfCore\PerformanceLab.Data.EfCore.csproj" />
+    <ProjectReference Include="..\PerformanceLab.Data.Dapper\PerformanceLab.Data.Dapper.csproj" />
+    <ProjectReference Include="..\PerformanceLab.Data.AdoNet\PerformanceLab.Data.AdoNet.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
