@@ -6,6 +6,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// Register our Performance Lab Domain Services
+builder.Services.AddSingleton<PerformanceLab.Abstractions.Catalog.IBenchmarkCatalog>(
+    new PerformanceLab.Core.Catalog.ReflectionBenchmarkCatalog(typeof(PerformanceLab.Benchmarks.DataAccess.EfCoreVsDapperVsAdoNetScenario).Assembly)
+);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

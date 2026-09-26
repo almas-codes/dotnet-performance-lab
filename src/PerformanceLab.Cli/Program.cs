@@ -13,18 +13,22 @@ class Program
         var listCommand = new Command("list", "List available benchmarks.");
         listCommand.SetHandler(() =>
         {
+            var catalog = new PerformanceLab.Core.Catalog.ReflectionBenchmarkCatalog(typeof(PerformanceLab.Benchmarks.DataAccess.EfCoreVsDapperVsAdoNetScenario).Assembly);
+            var scenarios = catalog.GetScenarios();
+            
             Console.WriteLine(".NET Performance Lab");
             Console.WriteLine();
-            Console.WriteLine("Data Access");
-            Console.WriteLine("  efcore-vs-dapper-vs-adonet");
-            Console.WriteLine("  tracking-vs-no-tracking");
-            Console.WriteLine("  compiled-vs-normal-query");
-            Console.WriteLine();
-            Console.WriteLine("Collections");
-            Console.WriteLine("  dictionary-vs-list");
-            Console.WriteLine("  hashset-vs-list");
-            Console.WriteLine();
-            // Just a mock for now
+            
+            foreach (var group in scenarios.GroupBy(x => x.Category))
+            {
+                Console.WriteLine($"{group.Key}");
+                foreach (var scenario in group)
+                {
+                    Console.WriteLine($"  {scenario.Id}");
+                    Console.WriteLine($"    {scenario.Name} - {scenario.Description}");
+                }
+                Console.WriteLine();
+            }
         });
         
         var runCommand = new Command("run", "Run benchmarks.");
@@ -36,6 +40,18 @@ class Program
         runCommand.AddOption(datasetOption);
         runCommand.SetHandler((category, benchmark, dataset) =>
         {
+            var catalog = new PerformanceLab.Core.Catalog.ReflectionBenchmarkCatalog(typeof(PerformanceLab.Benchmarks.DataAccess.EfCoreVsDapperVsAdoNetScenario).Assembly);
+            var scenarios = catalog.GetScenarios();
+            
+            if (!string.IsNullOrEmpty(category))
+            {
+                scenarios = scenarios.Where(x => x.Category.Equals(category, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            if (!string.IsNullOrEmpty(benchmark))
+            {
+                scenarios = scenarios.Where(x => x.Id.Equals(benchmark, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            
             Console.WriteLine($".NET Performance Lab");
             Console.WriteLine($"────────────────────────────────────────");
             Console.WriteLine($"Category       {category ?? "All"}");
@@ -46,14 +62,14 @@ class Program
             Console.WriteLine($"Preparing environment...");
             Console.WriteLine($"✓ Environment prepared");
             Console.WriteLine();
-            Console.WriteLine($"Running benchmarks...");
+            Console.WriteLine($"Running {scenarios.Count} scenarios...");
             
-            // Run actual benchmarks for proof-of-concept
-            BenchmarkDotNet.Running.BenchmarkRunner.Run<PerformanceLab.Benchmarks.DataAccess.EfCoreVsDapperVsAdoNetBenchmark>(
-                new PerformanceLab.Core.Configuration.PerformanceLabBenchmarkConfig());
-            
-            BenchmarkDotNet.Running.BenchmarkRunner.Run<PerformanceLab.Benchmarks.Collections.ListVsDictionaryLookupBenchmark>(
-                new PerformanceLab.Core.Configuration.PerformanceLabBenchmarkConfig());
+            var config = new PerformanceLab.Core.Configuration.PerformanceLabBenchmarkConfig();
+            foreach (var scenario in scenarios)
+            {
+                Console.WriteLine($"Executing {scenario.Name}...");
+                BenchmarkDotNet.Running.BenchmarkRunner.Run(scenario.BenchmarkType, config);
+            }
 
             Console.WriteLine();
             Console.WriteLine($"Results:");

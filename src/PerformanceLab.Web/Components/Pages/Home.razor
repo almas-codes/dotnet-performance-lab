@@ -1,4 +1,5 @@
 @page "/"
+@inject PerformanceLab.Abstractions.Catalog.IBenchmarkCatalog Catalog
 
 <PageTitle>.NET Performance Lab</PageTitle>
 
@@ -7,14 +8,24 @@
 <p>Welcome to the production-grade benchmark laboratory.</p>
 
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-12">
         <div class="card">
             <div class="card-header">
                 Available Scenarios
             </div>
             <ul class="list-group list-group-flush">
-                <li class="list-group-item"><strong>DataAccess</strong>: EF Core vs Dapper vs ADO.NET</li>
-                <li class="list-group-item"><strong>Collections</strong>: Dictionary vs List Lookup</li>
+                @foreach (var group in Catalog.GetScenarios().GroupBy(x => x.Category))
+                {
+                    <li class="list-group-item bg-light"><strong>@group.Key</strong></li>
+                    @foreach (var scenario in group)
+                    {
+                        <li class="list-group-item ms-3">
+                            <strong>@scenario.Name</strong> - @scenario.Description
+                            <br />
+                            <small class="text-muted">Hypothesis: @scenario.Hypothesis</small>
+                        </li>
+                    }
+                }
             </ul>
         </div>
     </div>
