@@ -3,30 +3,56 @@
 
 <PageTitle>.NET Performance Lab</PageTitle>
 
-<h1>.NET Performance Lab Dashboard</h1>
+<h1>.NET Performance Lab</h1>
+<p class="lead">Reproducible .NET performance benchmarks for real engineering decisions.</p>
 
-<p>Welcome to the production-grade benchmark laboratory.</p>
-
-<div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                Available Scenarios
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Scenarios</h5>
+                <p class="display-6 mb-0">@Catalog.GetScenarios().Count</p>
             </div>
-            <ul class="list-group list-group-flush">
-                @foreach (var group in Catalog.GetScenarios().GroupBy(x => x.Category))
-                {
-                    <li class="list-group-item bg-light"><strong>@group.Key</strong></li>
-                    @foreach (var scenario in group)
-                    {
-                        <li class="list-group-item ms-3">
-                            <strong>@scenario.Name</strong> - @scenario.Description
-                            <br />
-                            <small class="text-muted">Hypothesis: @scenario.Hypothesis</small>
-                        </li>
-                    }
-                }
-            </ul>
         </div>
     </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Categories</h5>
+                <p class="display-6 mb-0">@Catalog.GetScenarios().Select(x => x.Category).Distinct().Count()</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Runtime</h5>
+                <p class="mb-0"><code>@System.Environment.Version</code></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-info">
+    Run benchmarks with the CLI:
+    <code>dotnet run --project src/PerformanceLab.Cli -- run --benchmark dictionary-vs-list --quick</code>
+</div>
+
+<div class="card">
+    <div class="card-header">Benchmark Catalog</div>
+    <ul class="list-group list-group-flush">
+        @foreach (var group in Catalog.GetScenarios().GroupBy(x => x.Category))
+        {
+            <li class="list-group-item bg-light"><strong>@group.Key</strong></li>
+            @foreach (var scenario in group)
+            {
+                <li class="list-group-item ms-3">
+                    <div><code>@scenario.Id</code></div>
+                    <strong>@scenario.Name</strong>
+                    <div>@scenario.Description</div>
+                    <small class="text-muted">Hypothesis: @scenario.Hypothesis</small>
+                </li>
+            }
+        }
+    </ul>
 </div>

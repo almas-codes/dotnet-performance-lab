@@ -1,0 +1,14 @@
+{
+  "capturedAtUtc": "2026-09-26T20:45:41.4904512Z",
+  "sdk": "default",
+  "profile": {
+    "OperatingSystem": "Microsoft Windows 10.0.26200",
+    "Architecture": "X64",
+    "Processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "LogicalCores": 16,
+    "PhysicalCores": 16,
+    "Runtime": ".NET 10.0.12",
+    "RuntimeVersion": "10.0.12",
+    "Jit": "X64"
+  }
+}

@@ -27,7 +27,9 @@ public class PerformanceDbContext : DbContext
             b.HasKey(o => o.Id);
             b.Property(o => o.Status).HasMaxLength(50);
             b.HasIndex(o => o.CustomerId);
-            
+            b.HasIndex(o => o.OrderDate);
+            b.HasIndex(o => new { o.OrderDate, o.Id });
+
             b.HasOne(o => o.Customer)
              .WithMany(c => c.Orders)
              .HasForeignKey(o => o.CustomerId);

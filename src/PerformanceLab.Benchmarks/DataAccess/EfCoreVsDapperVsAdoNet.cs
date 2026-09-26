@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
@@ -8,6 +7,7 @@ using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using PerformanceLab.Abstractions.Catalog;
+using PerformanceLab.Benchmarks.Infrastructure;
 using PerformanceLab.Data;
 using PerformanceLab.Data.EfCore;
 
@@ -29,9 +29,8 @@ public class EfCoreVsDapperVsAdoNetBenchmark
     private string _connectionString = null!;
     private PerformanceDbContext _dbContext = null!;
     private NpgsqlConnection _connection = null!;
-    
-    // We will use a parameterized query
-    private const string Sql = "SELECT \"Id\", \"Name\", \"Email\", \"CreatedAt\" FROM \"Customers\" LIMIT @Limit";
+
+    private const string Sql = "SELECT \"Id\", \"Name\", \"Email\", \"CreatedAt\" FROM \"Customers\" ORDER BY \"Id\" LIMIT @Limit";
 
     [Params(100, 1_000, 10_000)]
     public int Limit { get; set; }
@@ -39,35 +38,14 @@ public class EfCoreVsDapperVsAdoNetBenchmark
     [GlobalSetup]
     public async Task Setup()
     {
-        // Use the user's requested local postgres
-        _connectionString = "Host=localhost;Port=5432;Database=perf_lab;Username=postgres;Password=admin";
-        
+        _connectionString = PostgresBenchmarkFixture.ConnectionString;
+        await PostgresBenchmarkFixture.EnsureCustomersSeededAsync(10_000);
+
         var options = new DbContextOptionsBuilder<PerformanceDbContext>()
             .UseNpgsql(_connectionString)
             .Options;
-            
+
         _dbContext = new PerformanceDbContext(options);
-        
-        // Ensure database exists and is seeded
-        await _dbContext.Database.EnsureDeletedAsync();
-        await _dbContext.Database.EnsureCreatedAsync();
-        
-        if (!await _dbContext.Customers.AnyAsync())
-        {
-            var customers = new List<Customer>();
-            for (int i = 0; i < 10_000; i++)
-            {
-                customers.Add(new Customer 
-                { 
-                    Name = $"Customer {i}", 
-                    Email = $"customer{i}@example.com", 
-                    CreatedAt = DateTime.UtcNow 
-                });
-            }
-            await _dbContext.Customers.AddRangeAsync(customers);
-            await _dbContext.SaveChangesAsync();
-        }
-        
         _connection = new NpgsqlConnection(_connectionString);
         await _connection.OpenAsync();
     }
@@ -85,7 +63,7 @@ public class EfCoreVsDapperVsAdoNetBenchmark
         var result = new List<Customer>(Limit);
         await using var cmd = new NpgsqlCommand(Sql, _connection);
         cmd.Parameters.AddWithValue("@Limit", Limit);
-        
+
         await using var reader = await cmd.ExecuteReaderAsync();
         while (await reader.ReadAsync())
         {
@@ -97,13 +75,14 @@ public class EfCoreVsDapperVsAdoNetBenchmark
                 CreatedAt = reader.GetDateTime(3)
             });
         }
+
         return result;
     }
 
     [Benchmark(Description = "Dapper")]
     public async Task<List<Customer>> Dapper()
     {
-        var result = await _connection.QueryAsync<Customer>(Sql, new { Limit = Limit });
+        var result = await _connection.QueryAsync<Customer>(Sql, new { Limit });
         return result.AsList();
     }
 
@@ -112,14 +91,16 @@ public class EfCoreVsDapperVsAdoNetBenchmark
     {
         return await _dbContext.Customers
             .AsNoTracking()
+            .OrderBy(c => c.Id)
             .Take(Limit)
             .ToListAsync();
     }
-    
+
     [Benchmark(Description = "EF Core (Tracking)")]
     public async Task<List<Customer>> EfCoreTracking()
     {
         return await _dbContext.Customers
+            .OrderBy(c => c.Id)
             .Take(Limit)
             .ToListAsync();
     }

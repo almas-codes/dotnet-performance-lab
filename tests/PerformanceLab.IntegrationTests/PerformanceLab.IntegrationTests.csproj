@@ -9,9 +9,15 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector"  />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing"  />
     <PackageReference Include="Microsoft.NET.Test.Sdk"  />
     <PackageReference Include="xunit"  />
     <PackageReference Include="xunit.runner.visualstudio"  />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PerformanceLab.Benchmarks\PerformanceLab.Benchmarks.csproj" />
+    <ProjectReference Include="..\..\src\PerformanceLab.Web\PerformanceLab.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>

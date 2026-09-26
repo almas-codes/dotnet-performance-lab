@@ -1,0 +1,14 @@
+{
+  "repository": "dotnet-performance-lab",
+  "runtime": ".NET 10",
+  "note": "Run `dotnet run --project src/PerformanceLab.Cli -- environment` to refresh machine-specific values.",
+  "benchmarkCount": 6,
+  "categories": [
+    "Collections",
+    "Concurrency",
+    "DataAccess",
+    "EfCore",
+    "Pagination",
+    "Serialization"
+  ]
+}

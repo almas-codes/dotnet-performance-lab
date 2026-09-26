@@ -1,76 +1,132 @@
-# 🚀 .NET Performance Engineering Laboratory (dotnet-performance-lab)
+# dotnet-performance-lab
 
 > Reproducible .NET performance benchmarks for real engineering decisions.
 
-Welcome to **dotnet-performance-lab** — a production-grade, meticulously organized performance testing laboratory for .NET 10. 
+[![CI](https://github.com/almas-codes/dotnet-performance-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/almas-codes/dotnet-performance-lab/actions/workflows/ci.yml)
+![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)
+![Benchmarks](https://img.shields.io/badge/benchmarks-6-blue)
 
-This repository goes beyond simple micro-benchmarks. It provides a robust, cross-platform CLI tool to execute, compare, and analyze realistic performance variants across Data Access (EF Core vs Dapper vs ADO.NET), Collections, Caching, Serialization, Concurrency, and ASP.NET Core.
+This repository does not tell you what to optimize. It shows you how to measure.
 
-## 🌟 Why This Project?
+Every benchmark includes source code, a stated hypothesis, methodology notes, and reproducible BenchmarkDotNet artifacts.
 
-Developers constantly face architectural choices: 
-* *Should I use EF Core tracking or no-tracking?*
-* *Is Dapper actually faster than ADO.NET for my specific query?*
-* *When does a Dictionary outperform a List?*
+## Highlights
 
-Most online benchmarks are isolated snippets that don't reflect real-world scenarios. **dotnet-performance-lab** solves this by:
-1. **Realistic Datasets:** Using generated, substantial datasets for O(N) operations.
-2. **Environment Standardization:** Capturing OS, Architecture, and Runtime parameters accurately.
-3. **Reproducibility:** Providing a CLI tool that anyone can run to generate exact, comparable results on their own hardware.
-4. **Transparent Methodology:** Separating the measurement from the interpretation.
+- **6 production-quality benchmark scenarios** across collections, serialization, concurrency, EF Core, pagination, and data access
+- **CLI-first workflow** with catalog validation, environment fingerprinting, and report generation
+- **PostgreSQL lab** via Docker Compose for realistic database benchmarks
+- **Automated QA** (`infrastructure/scripts/qa.ps1`) and GitHub Actions CI
+- **Blazor dashboard** for browsing the benchmark catalog
 
-## 📦 Architecture & Extensibility
+## Quick start
 
-This lab is heavily modularized to maintain strict dependency hygiene.
+### Prerequisites
 
-* **`PerformanceLab.Core`** & **`PerformanceLab.Abstractions`**: Defines the rigorous standard for all benchmarks (`IBenchmarkScenario`, `BenchmarkResult`).
-* **`PerformanceLab.Data.*`**: Contains the data entities and `DbContext` structures to allow isolated ORM testing.
-* **`PerformanceLab.Benchmarks`**: The actual BenchmarkDotNet implementations (Collections, Serialization, EF Core, etc).
-* **`PerformanceLab.Cli`**: The frontend console application to invoke specific benchmark categories and generate reports.
+- [.NET SDK 10](https://dotnet.microsoft.com/download) (`global.json` pins the SDK)
+- [Docker](https://www.docker.com/) for PostgreSQL database benchmarks
 
-## 🛠️ How to Use
+### Build and test
 
-1. **Clone & Build:**
-   ```bash
-   git clone git@github-personal:almas-codes/dotnet-performance-lab.git
-   cd dotnet-performance-lab
-   dotnet build
-   ```
+```bash
+git clone https://github.com/almas-codes/dotnet-performance-lab.git
+cd dotnet-performance-lab
+dotnet restore
+dotnet build
+dotnet test
+dotnet run --project src/PerformanceLab.Cli -- validate
+```
 
-2. **List Available Benchmarks:**
-   ```bash
-   dotnet run --project src/PerformanceLab.Cli -- list
-   ```
+### Full production QA
 
-3. **Run a Benchmark Category:**
-   ```bash
-   dotnet run --project src/PerformanceLab.Cli -- run --category DataAccess
-   ```
-   *Note: For DataAccess benchmarks, a local PostgreSQL instance is required (`localhost:5432`, user: `postgres`, pass: `admin`). The CLI will automatically provision the schema and seed data.*
+```powershell
+./infrastructure/scripts/start-databases.ps1
+./infrastructure/scripts/qa.ps1
+```
 
-## 🧩 How to Add New Features or Benchmarks
+## CLI
 
-Adding a new benchmark is simple and highly decoupled:
+```bash
+dotnet run --project src/PerformanceLab.Cli -- list
+dotnet run --project src/PerformanceLab.Cli -- environment
+dotnet run --project src/PerformanceLab.Cli -- run --benchmark dictionary-vs-list --quick
+dotnet run --project src/PerformanceLab.Cli -- run --category EfCore --quick
+dotnet run --project src/PerformanceLab.Cli -- clean
+```
 
-1. **Create the Benchmark Implementation:**
-   In `src/PerformanceLab.Benchmarks/YourCategory/`, create a standard BenchmarkDotNet class.
+Use `--quick` for development/QA. Omit it for standard reproducible runs.
 
-2. **Implement `IBenchmarkScenario`:**
-   In the same file, implement the scenario interface to register the benchmark with the CLI.
-   ```csharp
-   public class MyNewScenario : IBenchmarkScenario
-   {
-       public string Id => "my-new-scenario";
-       public string Name => "My New Test";
-       public string Category => "YourCategory";
-       // ... provide Hypothesis and Type
-       public Type BenchmarkType => typeof(MyBenchmarkClass);
-   }
-   ```
+## Benchmark catalog
 
-3. **Run and Analyze:**
-   The CLI automatically discovers types implementing `IBenchmarkScenario`. Simply run the CLI targeting your new category to generate the latest results!
+| ID | Category | Question |
+|---|---|---|
+| `dictionary-vs-list` | Collections | When does dictionary lookup beat list scan? |
+| `reflection-vs-source-generated-json` | Serialization | Does source generation reduce JSON cost? |
+| `channel-vs-concurrent-queue` | Concurrency | How do queue primitives compare for SPSC throughput? |
+| `efcore-vs-dapper-vs-adonet` | DataAccess | How do ORM and micro-ORM compare for equivalent reads? |
+| `tracking-vs-no-tracking` | EfCore | What is tracking overhead for read-only queries? |
+| `offset-vs-keyset` | Pagination | How does page depth affect offset vs keyset pagination? |
 
----
+Methodology: [`docs/methodology/fair-comparison.md`](docs/methodology/fair-comparison.md)
 
-*Built with precision for .NET 10. Open-source and ready for production.*
+Per-benchmark README files: [`benchmarks/`](benchmarks/)
+
+## Architecture
+
+```text
+PerformanceLab.Cli
+        ↓
+PerformanceLab.Benchmarks   (BenchmarkDotNet scenarios)
+        ↓
+PerformanceLab.Core         (catalog, config, validation, environment)
+        ↓
+PerformanceLab.Abstractions
+```
+
+Supporting libraries:
+
+- `PerformanceLab.Data.*` — entities and database adapters
+- `PerformanceLab.Analysis` — result interpretation helpers
+- `PerformanceLab.Reporting` — markdown summary generation
+- `PerformanceLab.Web` — benchmark catalog dashboard
+
+## Database lab
+
+```powershell
+./infrastructure/scripts/start-databases.ps1
+```
+
+Default connection:
+
+```text
+Host=localhost;Port=5432;Database=perf_lab;Username=postgres;Password=perf_lab_dev
+```
+
+Override with `PERFLAB_POSTGRES`.
+
+## Results
+
+```text
+reports/latest/environment.json
+reports/latest/summary.md
+reports/latest/raw/
+```
+
+Machine-specific timings are not checked into git.
+
+## Web dashboard
+
+```bash
+dotnet run --project src/PerformanceLab.Web
+```
+
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+## Security
+
+See [`SECURITY.md`](SECURITY.md).
+
+## License
+
+MIT — see [`LICENSE`](LICENSE).

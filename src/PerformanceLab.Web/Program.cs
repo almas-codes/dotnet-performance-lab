@@ -8,7 +8,7 @@ builder.Services.AddRazorComponents()
 
 // Register our Performance Lab Domain Services
 builder.Services.AddSingleton<PerformanceLab.Abstractions.Catalog.IBenchmarkCatalog>(
-    new PerformanceLab.Core.Catalog.ReflectionBenchmarkCatalog(typeof(PerformanceLab.Benchmarks.DataAccess.EfCoreVsDapperVsAdoNetScenario).Assembly)
+    new PerformanceLab.Core.Catalog.ReflectionBenchmarkCatalog(typeof(PerformanceLab.Benchmarks.Collections.ListVsDictionaryLookupScenario).Assembly)
 );
 
 var app = builder.Build();

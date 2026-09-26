@@ -2,7 +2,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PerformanceLab.Abstractions\PerformanceLab.Abstractions.csproj" />
-    <ProjectReference Include="..\PerformanceLab.Core\PerformanceLab.Core.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
