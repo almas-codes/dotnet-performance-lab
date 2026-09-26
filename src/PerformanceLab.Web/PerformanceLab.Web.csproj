@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\PerformanceLab.Abstractions\PerformanceLab.Abstractions.csproj" />
+    <ProjectReference Include="..\PerformanceLab.Core\PerformanceLab.Core.csproj" />
+    <ProjectReference Include="..\PerformanceLab.Analysis\PerformanceLab.Analysis.csproj" />
+    <ProjectReference Include="..\PerformanceLab.Reporting\PerformanceLab.Reporting.csproj" />
+    <ProjectReference Include="..\PerformanceLab.Benchmarks\PerformanceLab.Benchmarks.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+  </PropertyGroup>
+
+</Project>
