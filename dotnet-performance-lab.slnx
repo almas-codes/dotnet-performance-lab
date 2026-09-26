@@ -1,0 +1,26 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PerformanceLab.Abstractions/PerformanceLab.Abstractions.csproj" />
+    <Project Path="src/PerformanceLab.Analysis/PerformanceLab.Analysis.csproj" />
+    <Project Path="src/PerformanceLab.AspNetCore/PerformanceLab.AspNetCore.csproj" />
+    <Project Path="src/PerformanceLab.Benchmarks/PerformanceLab.Benchmarks.csproj" />
+    <Project Path="src/PerformanceLab.Caching/PerformanceLab.Caching.csproj" />
+    <Project Path="src/PerformanceLab.Concurrency/PerformanceLab.Concurrency.csproj" />
+    <Project Path="src/PerformanceLab.Core/PerformanceLab.Core.csproj" />
+    <Project Path="src/PerformanceLab.Data.AdoNet/PerformanceLab.Data.AdoNet.csproj" />
+    <Project Path="src/PerformanceLab.Data.Dapper/PerformanceLab.Data.Dapper.csproj" />
+    <Project Path="src/PerformanceLab.Data.EfCore/PerformanceLab.Data.EfCore.csproj" />
+    <Project Path="src/PerformanceLab.Data/PerformanceLab.Data.csproj" />
+    <Project Path="src/PerformanceLab.Reporting/PerformanceLab.Reporting.csproj" />
+    <Project Path="src/PerformanceLab.Runtime/PerformanceLab.Runtime.csproj" />
+    <Project Path="src/PerformanceLab.Serialization/PerformanceLab.Serialization.csproj" />
+    <Project Path="src/PerformanceLab.Web/PerformanceLab.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PerformanceLab.Analysis.Tests/PerformanceLab.Analysis.Tests.csproj" />
+    <Project Path="tests/PerformanceLab.BenchmarkValidationTests/PerformanceLab.BenchmarkValidationTests.csproj" />
+    <Project Path="tests/PerformanceLab.Core.Tests/PerformanceLab.Core.Tests.csproj" />
+    <Project Path="tests/PerformanceLab.IntegrationTests/PerformanceLab.IntegrationTests.csproj" />
+    <Project Path="tests/PerformanceLab.Reporting.Tests/PerformanceLab.Reporting.Tests.csproj" />
+  </Folder>
+</Solution>
